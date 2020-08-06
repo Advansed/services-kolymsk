@@ -1,0 +1,14 @@
+.item-1 {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.tar-text {
+    margin-top: auto;
+    margin-bottom: 0em;
+    align-self: end;
+}
+
+.tar-col{
+    vertical-align: text-bottom;
+}
