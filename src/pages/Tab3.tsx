@@ -25,11 +25,22 @@ const Tab3: React.FC = () => {
   const [exec,    setExec]  = useState<Array<t_exec>>([]); 
 
 
-  Store.upd_subscribe3(()=>{
-    setUpd(upd + 1);
-  })
 
+  function setUpd_( ){
+    if(typeof(upd) !== undefined) setUpd( upd + 1)
+  }
+
+
+  Store.subscribe({ num:  7, type: "exec", func: ()=>{ setUpd_() }})
+  Store.subscribe({ num:  8, type: "add_exec", func: ()=>{ setUpd_() }})
+  Store.subscribe({ num:  9, type: "upd_exec", func: ()=>{ setUpd_() }}) 
+  Store.subscribe({ num: 10, type: "adm", func: ()=>{ setUpd_() }})
+  Store.subscribe({ num: 11, type: "add_adm", func: ()=>{ setUpd_() }})
+  Store.subscribe({ num: 12, type: "upd_adm", func: ()=>{ setUpd_() }})
+
+  
   useEffect(()=>{
+
     setExec(Store.getState().Исполнители)
   
   }, [upd])
@@ -262,8 +273,7 @@ const Tab3: React.FC = () => {
                     params["ГУИД"] = info === undefined ? "" : info.ГУИД
                     params["Роль"] = Роль
                     params["Телефон"] = Телефон
-                    if(info !== undefined)
-                      if(ФИО !== info.ФИО) params["ФИО"] = ФИО
+                    params["ФИО"] = ФИО
                     params["Услуга"] = Услуга
 
                   updExec(params);
@@ -363,8 +373,7 @@ const Tab3: React.FC = () => {
                     params["ГУИД"] = info === undefined ? "" : info.ГУИД
                     params["Роль"] = Роль
                     params["Телефон"] = Телефон
-                    if(info !== undefined)
-                      if(ФИО !== info.ФИО) params["ФИО"] = ФИО
+                    params["ФИО"] = ФИО
                     params["Услуга"] = Услуга
 
                   updAdmin(params);
@@ -388,13 +397,14 @@ const Tab3: React.FC = () => {
     let elem = <>
       <IonCard>
         <IonCardHeader class="a-center"> {info.Наименование} </IonCardHeader>
-        <IonItem  lines="none">
-          <IonLabel position="fixed"> Тариф: </IonLabel>
+        <IonItem>
+          <IonLabel position="stacked"> Тариф: </IonLabel>
   
-              <IonInput type="number" placeholder="Изменить" onIonChange={(e)=>{
+              <IonInput type="number" value={ info.Тариф } onIonChange={(e)=>{
                 str = (e.detail.value as string);
               }}/>
-  
+        </IonItem>
+        <IonToolbar>
           <IonButton class="but-3" slot="end" fill="clear" onClick={()=>{
             if(str === undefined) return;
             if(str.length === 0) return
@@ -406,9 +416,10 @@ const Tab3: React.FC = () => {
 
             setPage(0)
           }}>
-            <IonIcon icon= { saveOutline } slot="icon-only"/>
+            Записать
+            <IonIcon icon= { saveOutline } slot="end"/>
           </IonButton>
-        </IonItem>
+        </IonToolbar>
       </IonCard>
 
       {/* <Execs info={Store.getState().Исполнители}/> */}
@@ -450,7 +461,7 @@ const Tab3: React.FC = () => {
             params.ФИО = res.Данные.ФИО
             params.Телефон = res.Данные.Телефон
             res = await Store.dispatch({type: "add_exec", data: params}) 
-            Store.dispatch({type: "ex_ec"})
+            console.log("add_exec")
           }
 
         }

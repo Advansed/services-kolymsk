@@ -43,6 +43,7 @@ const IonicApp: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const user = useContext(UserContext);
 
+  console.log(typeof("ddfd"))
 
   user.setIsLoggedIn = setIsLoggedIn;
 

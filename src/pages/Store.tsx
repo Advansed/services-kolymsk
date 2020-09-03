@@ -292,38 +292,41 @@ const       rootReducer = combineReducers({
 
 })
 
+interface t_list {
+    num: number, type: string, func: Function,
+}
 
- function    create_Store(reducer, initialState) {
+
+function    create_Store(reducer, initialState) {
     var currentReducer = reducer;
     var currentState = initialState;
-    var upd_listener1 = () => {};    
-    var upd_listener2 = () => {};
-    var upd_listener3 = () => {};    
-
+    var listeners: Array<t_list>; listeners = []
     return {
         getState() {
             return currentState;
         },
         dispatch(action) {
-            //console.log(action);
             currentState = currentReducer(currentState, action);
-            if(action.type.indexOf("usl")  > -1) {upd_listener1();upd_listener2()}
-            if(action.type.indexOf("doc")  > -1) {upd_listener1();upd_listener2()}
-            if(action.type === "ex_ec") upd_listener3();
-            return currentState;
+            listeners.forEach((elem)=>{
+                if(elem.type === action.type){
+                    elem.func();
+                }
+            })
+            return action;
         },
-        upd_subscribe1(newListener: any) {
-            upd_listener1 = newListener;
-        },
-        upd_subscribe2(newListener: any) {
-            upd_listener2 = newListener;
-        },        
-        upd_subscribe3(newListener: any) {
-            upd_listener3 = newListener;
-        },
+        subscribe(listen: t_list) {
+            var ind = listeners.findIndex(function(b) { 
+                return b.num === listen.num; 
+            });
+            if(ind >= 0){
+                listeners[ind] = listen;
+            }else{
+                listeners = [...listeners, listen]
+            }
+ 
+        }
     };
 }
-
 
 export const Store = create_Store(rootReducer, i_state)
 export const URL = " https://mfu24.ru/lombard/hs/MyAPI/V1/"

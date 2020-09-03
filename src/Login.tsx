@@ -42,7 +42,7 @@ function    Slide2():JSX.Element{
               </IonText>
           </IonCol></IonRow>
           <IonRow><IonCol>
-              <IonImg src="assets\Mask2@2x.png"/>  
+              <IonImg src="assets\Mask-3@2x.png"/>  
           </IonCol></IonRow>
       </IonGrid>
     </>

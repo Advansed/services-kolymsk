@@ -5,6 +5,14 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonButto
 import './Tab2.css';
 import { t_info, Store, getData } from "./Store"
 import update from 'immutability-helper';
+import { 
+  Plugins
+, PushNotification
+, PushNotificationActionPerformed
+, PushNotificationToken
+} from '@capacitor/core';
+
+const { PushNotifications } = Plugins;
 
 const a_state : t_info = {
     ГУИД:       "",
@@ -20,6 +28,12 @@ const a_state : t_info = {
 
 }
 
+interface i_notifications {
+  id:       string,
+  title:    string,
+  body:     string,
+}
+const INITIAL_STATE = [{ id: 'id', title: "Test Push", body: "This is my first push notification" }]
 
 const Tab2: React.FC = () => {
 
@@ -30,9 +44,15 @@ const Tab2: React.FC = () => {
 
   const [curr, setCurr] = useState<t_info>(a_state);
 
-  Store.upd_subscribe2(()=>{
-    setUpd(upd + 1);
-  })
+
+  function setUpd_( ){
+    if(typeof(upd) !== undefined) setUpd( upd + 1)
+  }
+
+  Store.subscribe({ num: 4, type: "usl", func: ()=>{ setUpd_() }})
+  Store.subscribe({ num: 5, type: "add_usl", func: ()=>{ setUpd_()}})
+  Store.subscribe({ num: 6, type: "upd_usl", func: ()=>{ setUpd_() }})
+
 
   useEffect(()=>{
     let jarr = Store.getState().Задания;
@@ -47,6 +67,42 @@ const Tab2: React.FC = () => {
     setCurr(current);
   }, [upd])
 
+      // Register with Apple / Google to receive push via APNS/FCM
+      PushNotifications.register();
+
+      // On succcess, we should be able to receive notifications
+      PushNotifications.addListener('registration',
+        (token: PushNotificationToken) => {
+         // alert('Push registration success, token: ' + token.value);
+          getData("setToken", { Телефон: Store.getState().Логин.Телефон, token: token.value} );
+        }
+      );
+  
+    // Some issue with your setup and push will not work
+      PushNotifications.addListener('registrationError',
+        (error: any) => {
+          alert('Error on registration: ' + JSON.stringify(error));
+        }
+      );
+  
+      // // Show us the notification payload if the app is open on our device
+      // PushNotifications.addListener('pushNotificationReceived',
+      //   (notification: PushNotification) => {
+      //     let notif = notifications;
+      //     notif.push({ id: notification.id, title: (notification.title as string), body: (notification.body as string) })
+      //     setNotifications(notif);
+      //   }
+      // );
+  
+      // // Method called when tapping on a notification
+      // PushNotifications.addListener('pushNotificationActionPerformed',
+      //   (notification: PushNotificationActionPerformed) => {
+      //     let notif = notifications;
+      //     notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
+      //     setNotifications(notif)
+      //   }
+      // );
+  
 
 function Page1(props:{curr: t_info}):JSX.Element {
   let curr = props.curr;

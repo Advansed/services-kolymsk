@@ -22,10 +22,15 @@ const Tab3: React.FC = () => {
   const [param,   setParam] = useState();
   const [docs,    setDocs]  = useState<Array<t_info>>([]); 
 
+  function setUpd_( ){
+    if(typeof(upd) !== undefined) setUpd( upd + 1)
+  }
 
-  Store.upd_subscribe3(()=>{
-    setUpd(upd + 1);
-  })
+  Store.subscribe({ num: 1, type: "docs", func: ()=>{ setUpd_() }})
+  Store.subscribe({ num: 1, type: "add_docs", func: ()=>{ setUpd_()}})
+  Store.subscribe({ num: 1, type: "upd_docs", func: ()=>{ setUpd_() }})
+
+  
 
   useEffect(()=>{
     setDocs(Store.getState().Документы)

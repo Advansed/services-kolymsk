@@ -10,21 +10,7 @@ import MaskedInput  from '../mask/reactTextMask'
 import { AddressSuggestions } from 'react-dadata';
 import 'react-dadata/dist/react-dadata.css';
 
-// import { 
-//     Plugins
-//   , PushNotification
-//   , PushNotificationToken
-//   , PushNotificationActionPerformed 
-// } from '@capacitor/core';
-
-// const { PushNotifications } = Plugins;
-
-// interface i_notifications {
-//   id:       string,
-//   title:    string,
-//   body:     string,
-// }
-//const INITIAL_STATE = [{ id: 'id', title: "Test Push", body: "This is my first push notification" }]
+import { IPAY, ipayCheckout } from '../components/sber'
 
 
 declare type Dictionary = {
@@ -61,68 +47,25 @@ const Tab1: React.FC = () => {
   const [value,     setValue] = useState("");
   const [info,      setInfo]  = useState<Array<t_info>>([]);
 
-  //const [notifications, setNotifications] = useState<Array<i_notifications>>(INITIAL_STATE)
 
-
-    // // Register with Apple / Google to receive push via APNS/FCM
-    // PushNotifications.register();
-
-    // // On succcess, we should be able to receive notifications
-    // PushNotifications.addListener('registration',
-    //   (token: PushNotificationToken) => {
-    //    // alert('Push registration success, token: ' + token.value);
-    //     getData("setToken", { Телефон: Store.getState().Логин.Телефон, token: token.value} );
-    //   }
-    // );
-
-    // // Some issue with your setup and push will not work
-    // PushNotifications.addListener('registrationError',
-    //   (error: any) => {
-    //     alert('Error on registration: ' + JSON.stringify(error));
-    //   }
-    // );
-
-    // // Show us the notification payload if the app is open on our device
-    // PushNotifications.addListener('pushNotificationReceived',
-    //   (notification: PushNotification) => {
-    //     let notif = notifications;
-    //     notif.push({ id: notification.id, title: (notification.title as string), body: (notification.body as string) })
-    //     setNotifications(notif);
-    //   }
-    // );
-
-    // // Method called when tapping on a notification
-    // PushNotifications.addListener('pushNotificationActionPerformed',
-    //   (notification: PushNotificationActionPerformed) => {
-    //     let notif = notifications;
-    //     notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
-    //     setNotifications(notif)
-    //   }
-    // );
-
-
-  // const { name } = useParams<{ name: string; }>();
+  //  registerWebPlugin( PushNotifications );
 
   let item : Dictionary = {"city": "Среднеколымск"};  
   let  dict: Dictionary[] = []; dict.push(item);
 
+  function setInfo_( arg ) {
+    if(typeof(info) !== undefined) {
+      setInfo(arg)
+    }
+  }
 
-  // const suggestionsRef = useRef<AddressSuggestions>(null);
-  // const handleClick = () => {
-  //   if (suggestionsRef.current) {
-  //     suggestionsRef.current.setInputValue('Тут пример запроса');
-  //   }
-  // };
-
-  Store.upd_subscribe1(()=>{
-    setUpd(upd + 1);
-  })
+  Store.subscribe({ num: 1, type: "doc", func: ()=>{ setInfo_(Store.getState().Заявки) }})
+  Store.subscribe({ num: 2, type: "add_doc", func: ()=>{ setInfo_(Store.getState().Заявки) }})
+  Store.subscribe({ num: 3, type: "upd_doc", func: ()=>{ setInfo_(Store.getState().Заявки) }})
 
   
 useEffect(()=>{
   setInfo(Store.getState().Заявки)
-
-// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [upd])
 
 function        Page1():JSX.Element {
@@ -209,7 +152,7 @@ function        Page1():JSX.Element {
     let elem = <>
   <IonCard>
       <IonItem class="item-1" detail={ true } lines="none" onClick={()=> setPage(1)}>
-          <IonIcon class="b-icon" src="assets\icon\serv05.svg" slot="start" />  
+          <IonIcon class="b-icon" src="assets\icon\serv04.svg" slot="start" />  
               <IonText class="b-text-1">
               Закажите новую услугу
           </IonText>
@@ -311,15 +254,33 @@ function        Page3():JSX.Element {
               }}></IonTextarea>
           </IonItem>
               <IonButton expand="block" onClick={()=>{
-                  createDoc();        
-              }}>
-                  
+                  IPAY({api_token: 'v32e4mhbmbcu0o7ts1l2ps9ii5'});
+                  ipayCheckout({
+                    amount: serv.Тариф,
+                    currency:'RUB',
+                    order_number:'',
+                    description: 'Откачка септика ' + Store.getState().addr},
+                    function(order) { showSuccessfulPurchase(order) },
+                    function(order) { showFailurefulPurchase(order) })
+                 // createDoc();        
+              }}>                    
                   Заказать
               </IonButton>
       </IonList>
     </IonCard>
   </>;
   return elem;
+}
+
+function        showSuccessfulPurchase(order){
+  console.log("success")
+  console.log(order)
+  createDoc()
+}
+
+function        showFailurefulPurchase(order){
+  console.log("failure")
+  console.log(order)
 }
 
 function        Page4():JSX.Element {
@@ -506,6 +467,7 @@ function        BackButton():JSX.Element{
 
   return elem
 } 
+
 
   return (
     <IonPage>
